@@ -28,9 +28,6 @@ import frc.robot.commands.SmartFeed;
 import frc.robot.commands.SmartShooter;
 import frc.robot.commands.ZeroClimber;
 import frc.robot.commands.ZeroHood;
-import frc.robot.commands.Autos.fiveball;
-import frc.robot.commands.Autos.oneball;
-import frc.robot.commands.Autos.twoball;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Intake;
@@ -43,6 +40,10 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
+
+import java.util.HashMap;
+
+import com.pathplanner.lib.auto.BaseAutoBuilder;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -78,9 +79,7 @@ public class RobotContainer {
   private final RunCommand m_stopIndex = new RunCommand(()->m_elevator.stop(), m_elevator);
   private final Command m_test = new ZeroHood(m_hood).alongWith(new ZeroClimber(m_climber)).alongWith(m_stopIndex).alongWith(m_testModeShoot);
 
-  private final Command m_autoFive = new fiveball(m_drive, m_intake, m_shooter, m_hood, m_elevator, m_operatorController);
-  private final Command m_autoTwo = new twoball(m_drive, m_intake, m_shooter, m_hood, m_elevator, m_operatorController);
-  private final Command m_autoOne = new oneball(m_drive, m_intake, m_shooter, m_hood, m_elevator, m_operatorController);
+  private final HashMap<String, Command> events = new HashMap<>();
   private final Command doNothin = new WaitCommand(20.0);
 
   SendableChooser<Command> m_chooser = new SendableChooser<>();
@@ -89,6 +88,7 @@ public class RobotContainer {
   public RobotContainer() {
     // Configure the button bindings
     configureButtonBindings();
+    configureAutoEvents();
     configureAutoChooser();
 
     m_drive.setDefaultCommand(m_driveByController);
@@ -125,11 +125,12 @@ public class RobotContainer {
 
   }
 
+  private void configureAutoEvents () {
+    events.put("startIntake", m_runIntake);
+  }
+
 
   private void configureAutoChooser(){
-    m_chooser.addOption("Auto2Ball", m_autoTwo);
-    m_chooser.addOption("Auto1Ball", m_autoOne);
-    m_chooser.addOption("Auto5Ball", m_autoFive);
     m_chooser.addOption("Do Nothing", doNothin);
     
     m_chooser.setDefaultOption("Do Nothing", doNothin);
