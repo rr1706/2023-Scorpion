@@ -186,7 +186,7 @@ public final class Constants {
   public static final class ShooterConstants {
     public static final int[] kMotorIDs = {20,21};        //CANID of the Motor Controller for the Sooter Motor
     public static final double kRPMTolerance = 100.0;          //RPMs of error allowed before a ball can be fed into t he shooter
-    public static final double[] kPID = { 0.0001, 0.0005, 0 }; // Defines PID values for the shooter 0.00045
+    public static final double[] kPID = { 0.000125, 0.0005, 0 }; // Defines PID values for the shooter 0.00045
     public static final double kIntRange = 0.015;
     public static final double kStatic = 0.018;
     public static final double kFF = 0.000165;

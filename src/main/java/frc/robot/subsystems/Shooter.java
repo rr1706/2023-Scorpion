@@ -7,6 +7,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.filter.MedianFilter;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -25,11 +26,10 @@ public class Shooter extends SubsystemBase {
 
     private double m_RPM = ShooterConstants.kMaxRPM;
 
-    private double m_lastPosition1 = 0.0;
-    private double m_lastPosition2 = 0.0;
+    private double[] m_lastPosition1 = {0,0,0,0,0,0,0};
     private double m_velocity = 0.0;
-    private double m_lastTime = 0.0;
-    private Timer m_timer = new Timer();  
+    private double[] m_lastTime = {0,0,0,0,0,0,0};
+    private Timer m_timer = new Timer(); 
 
     public Shooter(int motorIDs[]) {
 
@@ -51,6 +51,8 @@ public class Shooter extends SubsystemBase {
         m_encoder1.setVelocityConversionFactor(1.0);
         m_encoder2.setVelocityConversionFactor(1.0);
 
+        m_encoder1.setPosition(0.0);
+
         m_motor1.burnFlash();
         m_motor2.burnFlash();
 
@@ -62,6 +64,7 @@ public class Shooter extends SubsystemBase {
         SmartDashboard.putNumber("SetShotAdjust", 0);
         SmartDashboard.putBoolean("Adjust Shot?", false);
 
+        m_timer.start();
     }
 
     public void run(double rpm) {
@@ -90,17 +93,30 @@ public class Shooter extends SubsystemBase {
 
     @Override
     public void periodic() {
-        double position1 = m_encoder1.getPosition();
-        double position2 = m_encoder2.getPosition();
+
         double currentTime = m_timer.get();
-        double deltaTime = currentTime-m_lastTime;
-        m_velocity = 0.500*((position1 - m_lastPosition1)/(deltaTime)-((position2 - m_lastPosition2)/(deltaTime)));
 
-        m_lastPosition1 = position1;
-        m_lastPosition2 = position2;
-        m_lastTime = currentTime;
+        double position1 = m_encoder1.getPosition();
+        double deltaTime = currentTime-m_lastTime[0];
+        
+        SmartDashboard.putNumber("Shooter time delta", deltaTime);
+        SmartDashboard.putNumberArray("Time Array", m_lastTime);
 
-        SmartDashboard.putNumber("Shooter RPM", getVelocity());
+        m_velocity = 60.0*((position1 - m_lastPosition1[0])/(deltaTime));
+
+
+        for(int i=0;i<6;i++){
+            if(i<=5){
+                m_lastTime[i] = m_lastTime[i+1];
+                m_lastPosition1[i] = m_lastPosition1[i+1];
+            }
+        }
+
+        m_lastTime[6] = currentTime;
+        m_lastPosition1[6] = position1;
+
+        SmartDashboard.putNumber("Shooter RPM Custom", getVelocity());
+        SmartDashboard.putNumber("Shooter RPM Spark", m_encoder1.getVelocity());
         SmartDashboard.putNumber("Shooter Error", m_RPM-getVelocity());
 
     }

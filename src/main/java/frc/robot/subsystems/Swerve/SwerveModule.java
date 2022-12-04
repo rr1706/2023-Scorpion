@@ -16,14 +16,16 @@ import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.AnalogPotentiometer;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.*;
 import frc.robot.Utilities.MathUtils;
 
   /**
    * Implements a swerve module for the Robot
    */
-public class SwerveModule {
+public class SwerveModule extends SubsystemBase {
 
   //Our swerve modules use NEOs for both translation and rotation motors
   private final CANSparkMax m_driveMotor;
@@ -50,6 +52,11 @@ public class SwerveModule {
   // Creates a SimpleMotorFeedForward for the translation motor on the swerve module
   // The static and feedforward gains should be passed into the class contructor via the "tuningCals" array
   private SimpleMotorFeedforward driveFeedForward;
+
+  private double[] m_lastPosition = {0,0,0,0,0,0,0};
+  private double m_velocity = 0.0;
+  private double[] m_lastTime = {0,0,0,0,0,0,0};
+  private Timer m_timer = new Timer();  
 
   // Creates a PIDController for the control of the anglular position of the swerve module
   private final PIDController m_turningPIDController = new PIDController(ModuleConstants.kTurnPID[0],
@@ -99,6 +106,29 @@ public class SwerveModule {
 
     //Sets the moduleID to the value stored in the tuningVals array
     moduleID = tuningVals[3];
+
+    m_timer.start();
+  }
+
+  @Override
+  public void periodic(){
+    double currentTime = m_timer.get();
+
+    double position1 = m_driveEncoder.getPosition();
+    double deltaTime = currentTime-m_lastTime[0];
+
+    m_velocity = ((position1 - m_lastPosition[0])/(deltaTime));
+
+
+    for(int i=0;i<6;i++){
+        if(i<=5){
+            m_lastTime[i] = m_lastTime[i+1];
+            m_lastPosition[i] = m_lastPosition[i+1];
+        }
+    }
+
+    m_lastTime[6] = currentTime;
+    m_lastPosition[6] = position1;
   }
 
   /**
@@ -107,7 +137,7 @@ public class SwerveModule {
    * @return The current state of the module.
    */
   public SwerveModuleState getState() {
-    return new SwerveModuleState(m_driveEncoder.getVelocity(), new Rotation2d(getTurnEncoder()));
+    return new SwerveModuleState(getVelocity(), new Rotation2d(getTurnEncoder()));
   }
 
   public SwerveModulePosition getPosition(){
@@ -140,6 +170,10 @@ public class SwerveModule {
   public void stop(){
     m_driveMotor.set(0.0);
     m_turningMotor.set(0.0);
+  }
+
+  public double getVelocity(){
+    return m_velocity;
   }
 
   /**
