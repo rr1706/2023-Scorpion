@@ -7,6 +7,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.CurrentLimit;
@@ -23,6 +24,12 @@ public class Shooter extends SubsystemBase {
     private SimpleMotorFeedforward m_FF = new SimpleMotorFeedforward(ShooterConstants.kStatic, ShooterConstants.kFF);
 
     private double m_RPM = ShooterConstants.kMaxRPM;
+
+    private double m_lastPosition1 = 0.0;
+    private double m_lastPosition2 = 0.0;
+    private double m_velocity = 0.0;
+    private double m_lastTime = 0.0;
+    private Timer m_timer = new Timer();  
 
     public Shooter(int motorIDs[]) {
 
@@ -42,6 +49,7 @@ public class Shooter extends SubsystemBase {
         m_motor2.follow(m_motor1, true);
 
         m_encoder1.setVelocityConversionFactor(1.0);
+        m_encoder2.setVelocityConversionFactor(1.0);
 
         m_motor1.burnFlash();
         m_motor2.burnFlash();
@@ -64,7 +72,7 @@ public class Shooter extends SubsystemBase {
             rpm = ShooterConstants.kMaxRPM;
         }
         m_RPM = rpm;
-        double outputPID = m_PID.calculate(m_encoder1.getVelocity(), m_RPM);
+        double outputPID = m_PID.calculate(getVelocity(), m_RPM);
         double outputFF = m_FF.calculate(m_RPM);
         double output = outputPID + outputFF;
 
@@ -82,9 +90,23 @@ public class Shooter extends SubsystemBase {
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("Shooter RPM", m_encoder1.getVelocity());
-        SmartDashboard.putNumber("Shooter Error", m_RPM-m_encoder1.getVelocity());
+        double position1 = m_encoder1.getPosition();
+        double position2 = m_encoder2.getPosition();
+        double currentTime = m_timer.get();
+        double deltaTime = currentTime-m_lastTime;
+        m_velocity = 0.500*((position1 - m_lastPosition1)/(deltaTime)-((position2 - m_lastPosition2)/(deltaTime)));
 
+        m_lastPosition1 = position1;
+        m_lastPosition2 = position2;
+        m_lastTime = currentTime;
+
+        SmartDashboard.putNumber("Shooter RPM", getVelocity());
+        SmartDashboard.putNumber("Shooter Error", m_RPM-getVelocity());
+
+    }
+
+    public double getVelocity(){
+        return m_velocity;
     }
 
     public boolean atSetpoint() {
