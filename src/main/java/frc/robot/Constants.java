@@ -18,7 +18,7 @@ public final class Constants {
     public static final int kShooter = 40;
     public static final int kHood = 20;
     public static final int kElevator = 30;
-    public static final int kTranslation = 35;
+    public static final int kTranslation = 40;
     public static final int kRotation = 25;
     public static final int kClimber = 80;
   }
@@ -77,8 +77,8 @@ public final class Constants {
 
     public static final double kMaxAcceleration = 3.75;
     public static final double kMaxSpeedMetersPerSecond = 3.5; //Maximum Sustainable Drivetrain Speed under Normal Conditions & Battery, Robot will not exceed this speed in closed loop control
-    public static final double kMaxAngularSpeed = 2*Math.PI;      //Maximum Angular Speed desired. NOTE: Robot can exceed this but spinning fast is not particularly useful or driver friendly
-    public static final double kMaxAngularAccel = 2*Math.PI;      //Maximum Angular Speed desired. NOTE: Robot can exceed this but spinning fast is not particularly useful or driver friendly
+    public static final double kMaxAngularSpeed = 4.0;      //Maximum Angular Speed desired. NOTE: Robot can exceed this but spinning fast is not particularly useful or driver friendly
+    public static final double kMaxAngularAccel = 6.25;      //Maximum Angular Speed desired. NOTE: Robot can exceed this but spinning fast is not particularly useful or driver friendly
 
     public static final double kInnerDeadband = 0.08; //This value should exceed the maximum value the analog stick may read when not in use (Eliminates "Stick Drift")
     public static final double kOuterDeadband = 0.98; //This value should be lower than the analog stick X or Y reading when aimed at a 45deg angle (Such that X and Y are are maximized simultaneously)
