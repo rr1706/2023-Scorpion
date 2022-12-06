@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.GoalConstants;
 import frc.robot.Constants.IntakeConstants;
@@ -42,8 +43,10 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 
 import java.util.HashMap;
+import java.io.File;
 
 import com.pathplanner.lib.auto.BaseAutoBuilder;
+import com.pathplanner.lib.auto.SwerveAutoBuilder;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -79,10 +82,14 @@ public class RobotContainer {
   private final RunCommand m_stopIndex = new RunCommand(()->m_elevator.stop(), m_elevator);
   private final Command m_test = new ZeroHood(m_hood).alongWith(new ZeroClimber(m_climber)).alongWith(m_stopIndex).alongWith(m_testModeShoot);
 
+  private SendableChooser<Command> m_chooser = new SendableChooser<>();
+  private File[] m_autoPathFiles = new File("src\\main\\deploy\\pathplanner").listFiles();
+  private HashMap<String, Command> m_autoPaths = new HashMap<>();
+
   private final HashMap<String, Command> events = new HashMap<>();
   private final Command doNothin = new WaitCommand(20.0);
+  private final SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(m_drive.getPose(), m_drive.resetOdometry(new Pose2d()), DriveConstants.kDriveKinematics, null, null, null, events, m_drive)
 
-  SendableChooser<Command> m_chooser = new SendableChooser<>();
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -125,13 +132,30 @@ public class RobotContainer {
 
   }
 
+
+  /**
+   * Configures autonomous events
+   * 
+   */
   private void configureAutoEvents () {
     events.put("startIntake", m_runIntake);
+    events.put("stopIntake", new InstantCommand(() -> m_runIntake.cancel()));
+    events.put("startShooter", m_smartShooter);
+    events.put("stopShooter", new InstantCommand(() -> m_smartShooter.cancel()));
+    events.put("startElevator", m_feed);
+    events.put("stopElevator", new InstantCommand(() -> m_feed.cancel()));
   }
 
 
   private void configureAutoChooser(){
     m_chooser.addOption("Do Nothing", doNothin);
+
+    for (File auto : m_autoPathFiles) {
+      m_chooser.addOption(
+        auto.getName(),
+        
+      );
+    }
     
     m_chooser.setDefaultOption("Do Nothing", doNothin);
     SmartDashboard.putData(m_chooser);  
