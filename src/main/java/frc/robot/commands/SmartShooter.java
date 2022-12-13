@@ -66,7 +66,7 @@ public class SmartShooter extends CommandBase {
         m_timer.start();
 
         Limelight.enable();
-
+        
         //FieldRelativeSpeed speed = m_drive.getFieldRelativeSpeed();
         //FieldRelativeAccel accel = m_drive.getFieldRelativeAccel();
     

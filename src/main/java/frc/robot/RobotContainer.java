@@ -6,6 +6,8 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
@@ -15,6 +17,7 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.GoalConstants;
 import frc.robot.Constants.IntakeConstants;
+import frc.robot.Constants.ModuleConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.Utilities.JoystickLeftTrigger;
@@ -45,7 +48,10 @@ import edu.wpi.first.wpilibj2.command.button.POVButton;
 import java.util.HashMap;
 import java.io.File;
 
+import com.pathplanner.lib.PathConstraints;
+import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.auto.BaseAutoBuilder;
+import com.pathplanner.lib.auto.PIDConstants;
 import com.pathplanner.lib.auto.SwerveAutoBuilder;
 
 /**
@@ -83,12 +89,11 @@ public class RobotContainer {
   private final Command m_test = new ZeroHood(m_hood).alongWith(new ZeroClimber(m_climber)).alongWith(m_stopIndex).alongWith(m_testModeShoot);
 
   private SendableChooser<Command> m_chooser = new SendableChooser<>();
-  private File[] m_autoPathFiles = new File("src\\main\\deploy\\pathplanner").listFiles();
-  private HashMap<String, Command> m_autoPaths = new HashMap<>();
+  private File[] m_autoPathFiles = new File(Filesystem.getDeployDirectory(), "pathplanner/").listFiles();
 
   private final HashMap<String, Command> events = new HashMap<>();
   private final Command doNothin = new WaitCommand(20.0);
-  private final SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(m_drive.getPose(), m_drive.resetOdometry(new Pose2d()), DriveConstants.kDriveKinematics, null, null, null, events, m_drive)
+  private final SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(m_drive::getPose, m_drive::resetOdometry, DriveConstants.kDriveKinematics, new PIDConstants(0.2, 0, 0), new PIDConstants(ModuleConstants.kTurnPID[2], 0, 0), m_drive::setModuleStates, events, m_drive);
 
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -132,11 +137,6 @@ public class RobotContainer {
 
   }
 
-
-  /**
-   * Configures autonomous events
-   * 
-   */
   private void configureAutoEvents () {
     events.put("startIntake", m_runIntake);
     events.put("stopIntake", new InstantCommand(() -> m_runIntake.cancel()));
@@ -146,14 +146,20 @@ public class RobotContainer {
     events.put("stopElevator", new InstantCommand(() -> m_feed.cancel()));
   }
 
-
   private void configureAutoChooser(){
     m_chooser.addOption("Do Nothing", doNothin);
 
     for (File auto : m_autoPathFiles) {
       m_chooser.addOption(
         auto.getName(),
-        
+        autoBuilder.fullAuto(PathPlanner.loadPathGroup(auto.getName().replace(".path", ""), new PathConstraints(DriveConstants.kMaxSpeedMetersPerSecond, DriveConstants.kMaxAcceleration)))
+      );
+    }
+
+    for (File auto : m_autoPathFiles) {
+      m_chooser.addOption(
+        "Slow " + auto.getName(),
+        autoBuilder.fullAuto(PathPlanner.loadPathGroup(auto.getName().replace(".path", ""), new PathConstraints(DriveConstants.kTestSpeedMetersPerSecond, DriveConstants.kTestAcceleration)))
       );
     }
     

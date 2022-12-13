@@ -75,10 +75,13 @@ public final class Constants {
     public static final SwerveDriveKinematics kDriveKinematics 
       = new SwerveDriveKinematics(kFrontLeftLocation,kFrontRightLocation,kBackLeftLocation,kBackRightLocation);
 
-    public static final double kMaxAcceleration = 3.75;
-    public static final double kMaxSpeedMetersPerSecond = 3.25; //Maximum Sustainable Drivetrain Speed under Normal Conditions & Battery, Robot will not exceed this speed in closed loop control
+    public static final double kMaxAcceleration = 2.75;
+    public static final double kMaxSpeedMetersPerSecond = 2.25; //Maximum Sustainable Drivetrain Speed under Normal Conditions & Battery, Robot will not exceed this speed in closed loop control
     public static final double kMaxAngularSpeed = Math.PI;      //Maximum Angular Speed desired. NOTE: Robot can exceed this but spinning fast is not particularly useful or driver friendly
     public static final double kMaxAngularAccel = 2*Math.PI;      //Maximum Angular Speed desired. NOTE: Robot can exceed this but spinning fast is not particularly useful or driver friendly
+
+    public static final double kTestAcceleration = 1.15;
+    public static final double kTestSpeedMetersPerSecond = 1.0;
 
     public static final double kInnerDeadband = 0.08; //This value should exceed the maximum value the analog stick may read when not in use (Eliminates "Stick Drift")
     public static final double kOuterDeadband = 0.98; //This value should be lower than the analog stick X or Y reading when aimed at a 45deg angle (Such that X and Y are are maximized simultaneously)
@@ -97,7 +100,7 @@ public final class Constants {
   public static final class ModuleConstants {
     public static final double kTranslationRampRate = 3.0;          //Units of %power/s, ie 4.0 means it takes 0.25s to reach 100% power from 0%
     private static final double kTranslationGearRatio = 5.6111111; //Overall gear ratio of the swerve module
-    private static final double kWheelDiameter = 0.0777*0.98;           //Wheel Diameter in meters, may need to be experimentally determined due to compliance of floor/tread material
+    private static final double kWheelDiameter = 0.0777*1.05;           //Wheel Diameter in meters, may need to be experimentally determined due to compliance of floor/tread material
 
     public static final double kVelocityFactor = (1.0 / kTranslationGearRatio / 60.0) * kWheelDiameter * Math.PI; //Calculates the conversion factor of RPM of the translation motor to m/s at the floor
 
