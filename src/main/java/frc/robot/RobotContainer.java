@@ -93,7 +93,7 @@ public class RobotContainer {
 
   private final HashMap<String, Command> events = new HashMap<>();
   private final Command doNothin = new WaitCommand(20.0);
-  private final SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(m_drive::getPose, m_drive::resetOdometry, DriveConstants.kDriveKinematics, new PIDConstants(0.2, 0, 0), new PIDConstants(ModuleConstants.kTurnPID[2], 0, 0), m_drive::setModuleStates, events, m_drive);
+  private final SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(m_drive::getPose, m_drive::resetOdometry, DriveConstants.kDriveKinematics, new PIDConstants(0.2, 0, 0), new PIDConstants(ModuleConstants.kTurnPID[2], 0, 0), m_drive::setModuleStates, events, m_drive, m_shooter, m_hood, m_elevator);
 
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
