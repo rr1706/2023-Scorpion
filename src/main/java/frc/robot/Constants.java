@@ -1,11 +1,16 @@
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+
 import frc.robot.Utilities.LinearInterpolationTable;
 
 import java.awt.geom.Point2D;
+import java.util.Map;
+
+import static java.util.Map.entry;
 
   /**
    * Static method containing all constant values for the robot in one location
@@ -131,6 +136,10 @@ public final class Constants {
     public static final double kAzimuthalAngle = -0.50;                // Degree azimuthal offset of limelight
     public static final double kTargetCenterHeightFromLens = 81.0;  // Center Height of the Target in inches above the lens
     public static final double kTrackTolerance = 0.0200;             // Allowable Limelight angle error in radians
+
+    public static final Map<Integer, Pose3d> kTags = Map.ofEntries(    // Map of AprilTag IDs and their field relative Pose3d to be used with photonvision
+      entry(0, new Pose3d())
+    );
   }
   /**
    * Static method containing all Intake constants 

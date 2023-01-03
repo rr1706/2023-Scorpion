@@ -216,8 +216,8 @@ import frc.robot.Utilities.FieldRelativeSpeed;
 
   public Pose2d getAutoPose() {
     updateAutoOdometry();
-    Pose2d pose = m_autoOdometry.getPoseMeters();
-    Translation2d position = pose.getTranslation();
+    //Pose2d pose = m_autoOdometry.getPoseMeters();
+    //Translation2d position = pose.getTranslation();
     //SmartDashboard.putNumber("Auto X", position.getX());
     //SmartDashboard.putNumber("Auto Y", position.getY());
     return m_autoOdometry.getPoseMeters();
